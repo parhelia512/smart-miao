@@ -58,9 +58,6 @@ namespace Bedrock.WebApi.Filters
             // 使用控制台输出错误信息
             ConsoleHelper.Error($"API Exception: {context.Exception.Message}");
 
-            // 使用log4net记录详细的异常信息，包括堆栈跟踪
-            //log.Error($"API Exception: {context.Exception.Message}", context.Exception);
-
             // 设置ActionResult为包含错误信息的对象结果，并指定状态码
             context.Result = new ObjectResult(errorResponse)
             {

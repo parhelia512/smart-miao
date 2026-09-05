@@ -1,6 +1,7 @@
 ﻿using Bedrock.Application.DataTransferObjects;
 using Bedrock.Application.Interfaces;
 using Bedrock.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
@@ -39,6 +40,8 @@ namespace Bedrock.Application.Services;
 /// </remarks>
 public class CaptchaService : ICaptchaService
 {
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
     private readonly IConnectionMultiplexer _redis;
     private readonly IDatabase _redisDb; // Redis 数据库实例
     private readonly string _instanceName;
@@ -74,9 +77,11 @@ public class CaptchaService : ICaptchaService
     /// <param name="redisConfig">Redis 配置选项，用于获取实例名称以实现多租户/多环境隔离。</param>
     /// <exception cref="ArgumentNullException">当任意参数为 null 时抛出。</exception>
     public CaptchaService(
+        IWebHostEnvironment webHostEnvironment,
         IConnectionMultiplexer redis,
         IOptions<RedisConfig> redisConfig)
     {
+        _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         _redis = redis ?? throw new ArgumentNullException(nameof(redis));
         _redisDb = _redis.GetDatabase();
         _instanceName = redisConfig.Value.InstanceName;
@@ -273,12 +278,17 @@ public class CaptchaService : ICaptchaService
         // ------------------------
 
         // A. 加载字体文件 (Typeface)
-        using var typeface = SKTypeface.FromFamilyName(
-            "Arial",
-            weight: SKFontStyleWeight.Bold,
-            width: SKFontStyleWidth.Normal,
-            slant: SKFontStyleSlant.Upright
-        );
+        // ❌ 删除：依赖系统字体服务的写法
+        //using var typeface = SKTypeface.FromFamilyName(
+        //    "Arial",
+        //    weight: SKFontStyleWeight.Bold,
+        //    width: SKFontStyleWidth.Normal,
+        //    slant: SKFontStyleSlant.Upright
+        //);
+        // ✅ 改为：从文件路径直接加载（不依赖 fontconfig）
+        var fontPath = Path.Combine(_webHostEnvironment.WebRootPath, "assets", "fonts",  "Roboto-Bold.ttf");
+        using var typeface = SKTypeface.FromFile(fontPath)
+            ?? throw new FileNotFoundException($"字体文件未找到: {fontPath}");
 
         // B. 创建 SKFont 对象并设置所有字体属性
         // ✅ 修复：原本在 SKPaint 上的 TextSize, Typeface, TextEncoding 现在都在 SKFont 上

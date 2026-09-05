@@ -365,8 +365,4 @@ FodyWeavers.xsd
 
 # 上传的文件
 **/wwwroot/uploads/*
-!**/wwwroot/uploads/warning.png
-!**/wwwroot/uploads/logo.png
-!**/wwwroot/uploads/logo-blue.png
-!**/wwwroot/uploads/favicon.ico
 

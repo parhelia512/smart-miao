@@ -1,0 +1,55 @@
+# =====================================================================
+# bee-budget-frontend Docker Compose 编排文件（生产 / 开发）
+#
+# 常用命令：
+#   docker compose up -d --build               # 开发（合并 override）+ 启动
+#   docker compose -f docker-compose.yml up -d --build    # 构建生产 + 启动
+#   docker compose -f docker-compose.yml build    # 构建生产
+
+# =====================================================================
+#
+# 推送到阿里云个人镜像仓库：
+# $ docker login --username=18353674768 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com
+# $ docker tag [ImageId] crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:[镜像版本号]
+# $ docker push crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:[镜像版本号]
+# 示例：
+# docker login --username=18353674768 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com
+# docker images
+# docker tag 067467ac8d5e crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:1.0.0
+# 或 docker tag bee-budget-frontend:1.0.0 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:1.0.0
+# docker push crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:1.0.0
+#
+# 从阿里云个人镜像仓库拉取镜像：
+# docker pull crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:[镜像版本号]
+# 示例：
+# docker pull crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:1.0.0
+
+services:
+  # ==================== 生产部署 ====================
+  frontend:
+    image: bee-budget-frontend:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bee-budget-frontend
+    ports:
+      - "10004:8000"
+    environment:
+      # 后端 API 地址，可通过环境变量或 .env 文件覆盖
+      # 开发默认 host.docker.internal，生产部署时务必覆盖为真实地址
+      - BACKEND_URL=${BACKEND_URL:-http://192.168.0.88:10003}
+    restart: unless-stopped
+    healthcheck:
+      # nginx-alpine 自带 wget，用 /frontend/ 路径检测构建产物是否正常挂载
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8000/frontend/ || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # 如果需要与后端容器在同一 docker-compose 网络中，取消下面的注释
+    # networks:
+    #   - bee-budget-net
+    
+# networks:
+#   bee-budget-net:
+#     driver: bridge

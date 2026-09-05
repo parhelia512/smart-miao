@@ -463,10 +463,11 @@ try
 
     // 注册全局异常处理中间件（中间件的执行顺序遵循“先进后出”（First In, Last Out）的栈式模型。想象成洋葱圈，需要放最前面才能捕获全局异常！）
     app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-    // 使用自定义的 JWT 中间件（！！！完全绕过了框架设计，导致 [AllowAnonymous]、[Authorize(Roles="")]、策略授权等全部失效）
-    //app.UseMiddleware<JwtMiddleware>();
 
     // 启用静态文件服务
+    // 1. 默认中间件：服务于整个 wwwroot（让 /assets/logo.png 生效）
+    app.UseStaticFiles();
+    // 2. 保留 uploads 定制中间件（让 /uploads/* 生效，且保留 MIME 映射）,这样方便后期拆分
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.WebRootPath, "uploads")),

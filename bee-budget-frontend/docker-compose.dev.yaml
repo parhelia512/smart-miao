@@ -1,0 +1,31 @@
+# =====================================================================
+# bee-budget-frontend Docker Compose 编排文件（开发）
+#
+# 常用命令：
+#   docker compose -f docker-compose.dev.yml up -d --build    # 构建开发 + 启动
+# =====================================================================
+
+services:
+  # ==================== 开发调试 ====================
+  frontend:
+    image: bee-budget-frontend-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bee-budget-frontend-dev
+    ports:
+      - "20002:20002"
+    volumes:
+      # 整体挂载项目根目录，由 .dockerignore 排除无关文件
+      - .:/app
+      # 匿名卷：防止宿主机 node_modules 覆盖容器内的 Linux 依赖
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: "no"  # 开发环境不自动重启，方便调试  
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "20002"]
+    healthcheck:
+      test: [ "CMD-SHELL", "true" ]
+      interval: 30s
+      timeout: 1s
+      retries: 1

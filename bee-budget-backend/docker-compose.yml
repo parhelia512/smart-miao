@@ -1,0 +1,66 @@
+# =====================================================================
+# bee-budget-backend Docker Compose 编排文件（生产 / 开发）
+# 仅编排后端 API 容器；MySQL / Redis 为独立服务，
+# 连接配置统一放在 appsettings.Production.json（镜像内）中。
+#
+# 常用命令：
+#   docker compose up -d --build               # 开发（合并 override）+ 启动
+#   docker compose -f docker-compose.yml up -d --build    # 构建生产 + 启动
+#   docker compose -f docker-compose.yml build    # 构建生产
+
+# =====================================================================
+#
+# 推送到阿里云个人镜像仓库：
+# $ docker login --username=18353674768 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com
+# $ docker tag [ImageId] crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:[镜像版本号]
+# $ docker push crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:[镜像版本号]
+# 示例：
+# docker login --username=18353674768 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com
+# docker images
+# docker tag 067467ac8d5e crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:1.0.0
+# 或 docker tag bee-budget-backend:1.0.0 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:1.0.0
+# docker push crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:1.0.0
+#
+# 从阿里云个人镜像仓库拉取镜像：
+# docker pull crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:[镜像版本号]
+# 示例：
+# docker pull crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-backend:1.0.0
+
+services:
+  # ==================== 后端 API ====================
+  bedrock.webapi:
+    # 生产镜像/容器；开发时使用 override 中的 bee-budget-backend-dev
+    image: bee-budget-backend:1.0.0
+    build:
+      context: .
+      dockerfile: Bedrock.WebApi/Dockerfile
+    container_name: bee-budget-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      # 应用通过 AppSettings:HttpPort 配置 Kestrel 监听端口
+      # 必须与 Dockerfile 的 EXPOSE 8080 / HEALTHCHECK 保持一致
+      AppSettings__HttpPort: 8080
+    ports:
+      - "20001:8080"
+    volumes:
+      # 日志持久化：使用已创建的命名卷 bee-budget-logs
+      - bee-budget-logs:/app/logs
+      # 上传文件持久化：使用已创建的命名卷 bee-budget-uploads
+      - bee-budget-uploads:/app/wwwroot/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+# ==================== 数据卷 ====================
+# 外部命名卷（已手动创建：docker volume create bee-budget-uploads）
+volumes:
+  bee-budget-logs:
+    external: true
+    name: bee-budget-logs
+  bee-budget-uploads:
+    external: true
+    name: bee-budget-uploads

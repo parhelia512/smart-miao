@@ -1,0 +1,16 @@
+# 开发环境 Dockerfile
+# 使用 Vite dev server，支持热更新 (HMR)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 安装依赖
+COPY package.json package-lock.json ./
+RUN npm ci --registry=https://registry.npmmirror.com
+
+# 源码由 docker-compose volume 挂载，无需 COPY
+
+EXPOSE 20002
+
+# 启动 vite dev server，监听所有地址以支持 Docker 端口映射
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,0 +1,52 @@
+# =====================================================================
+# bee-budget-frontend 生产部署编排文件
+# 此文件不含 build 段，仅用于从 ACR 拉取镜像并启动
+# =====================================================================
+# 部署流程：
+# 1. 放到推荐目录（不是"随便"放）
+# sudo mkdir -p /opt/bee-budget-frontend
+# 把 docker-compose.prod.yml 上传到该目录
+#
+# 2. cd 进去（必须！compose 以当前目录为上下文）
+# cd /opt/bee-budget-frontend
+#
+# 3. 首次部署：创建外部卷 + 登录镜像仓库 + 启动
+# docker login --username=18353674768 crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com
+# docker compose -f docker-compose.prod.yml up -d --pull always
+#
+# 4. 后续更新：只需改版本号，重新上传 docker-compose.prod.yml，然后
+# docker compose -f docker-compose.prod.yml up -d --pull always
+# 
+# 5. 停止并删除容器（数据卷保留）
+# docker compose -f docker-compose.prod.yml down
+
+services:
+  # ==================== 生产部署 ====================
+  frontend:
+    # 改动：替换为 ACR 远程镜像地址（删掉 build 段）
+    image: crpi-69yp864c0wdn7m3t.cn-qingdao.personal.cr.aliyuncs.com/purrylab/bee-budget-frontend:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bee-budget-frontend
+    ports:
+      - "10004:8000"
+    environment:
+      # 后端 API 地址，可通过环境变量或 .env 文件覆盖
+      # 开发默认 host.docker.internal，生产部署时务必覆盖为真实地址
+      - BACKEND_URL=${BACKEND_URL:-http://192.168.0.88:10003}
+    restart: unless-stopped
+    healthcheck:
+      # nginx-alpine 自带 wget，用 /frontend/ 路径检测构建产物是否正常挂载
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8000/frontend/ || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # 如果需要与后端容器在同一 docker-compose 网络中，取消下面的注释
+    # networks:
+    #   - bee-budget-net
+
+# networks:
+#   bee-budget-net:
+#     driver: bridge

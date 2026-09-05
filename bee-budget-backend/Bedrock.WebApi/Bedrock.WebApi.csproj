@@ -5,29 +5,21 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <ApplicationIcon>wwwroot\uploads\favicon.ico</ApplicationIcon>
+    <ApplicationIcon>wwwroot\assets\favicon.ico</ApplicationIcon>
+    <UserSecretsId>3c2253ee-d436-40f1-8618-bd1ada91e82d</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="logs\**" />
-    <Compile Remove="ViewModels\**" />
     <Compile Remove="wwwroot\uploads\**" />
     <Content Remove="logs\**" />
-    <Content Remove="ViewModels\**" />
     <Content Remove="wwwroot\uploads\**" />
     <EmbeddedResource Remove="logs\**" />
-    <EmbeddedResource Remove="ViewModels\**" />
     <EmbeddedResource Remove="wwwroot\uploads\**" />
     <None Remove="logs\**" />
-    <None Remove="ViewModels\**" />
     <None Remove="wwwroot\uploads\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="wwwroot\uploads\favicon.ico" />
-    <Content Include="wwwroot\uploads\logo-blue.png" />
-    <Content Include="wwwroot\uploads\logo.png" />
-    <Content Include="wwwroot\uploads\warning.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +33,7 @@
     <PackageReference Include="KubernetesClient" Version="19.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.24.1-preview.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.14.4" />
   </ItemGroup>
 
@@ -48,5 +41,9 @@
     <ProjectReference Include="..\Bedrock.Configuration\Bedrock.Configuration.csproj" />
     <ProjectReference Include="..\Bedrock.Infrastructure\Bedrock.Infrastructure.csproj" />
     <ProjectReference Include="..\Bedrock.Application\Bedrock.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 </Project>
