@@ -12,9 +12,6 @@ namespace Bedrock.WebApi.Filters
     /// </summary>
     public class ApiExceptionFilter : IExceptionFilter
     {
-        // 获取日志记录器实例，用于记录异常信息
-        //private static readonly ILog log = LogManager.GetLogger(typeof(ApiExceptionFilter));
-
         /// <summary>
         /// 当发生未处理的异常时调用此方法。
         /// 捕获异常、生成标准化错误响应，并记录详细日志。

@@ -29,6 +29,8 @@ import './permission' // permission control
 import Pagination from '@/components/Pagination'
 // 字典标签组件
 import DictTag from '@/components/DictTag'
+// 高级select组件
+import SelectAdvance from '@/components/SelectAdvance'
 
 const app = createApp(App)
 
@@ -38,6 +40,7 @@ const app = createApp(App)
 // 全局组件挂载
 app.component('DictTag', DictTag)
 app.component('Pagination', Pagination)
+app.component('SelectAdvance', SelectAdvance)
 
 app.use(router)
 app.use(store)

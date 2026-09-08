@@ -88,21 +88,21 @@
                         @selection-change="onSelectionChange"
                         @sort-change="onSortChange">
                 <el-table-column type="selection" width="50" align="center"/>
-                <el-table-column label="id" align="right" width="100" fixed="left" key="id" prop="id" sortable="custom"
-                                 :sort-orders="['descending', 'ascending']"/>
-                <el-table-column label="样例1名称" key="demo1Name" prop="demo1Name"/>
-                <el-table-column label="名称" key="name" prop="name"/>
-                <el-table-column label="别名" key="aliasName" prop="aliasName"/>
-                <el-table-column label="编码" key="code" prop="code"/>
-                <el-table-column label="是否可见" align="center" key="isVisible" prop="isVisible">
+                <el-table-column label="id" fixed="left" key="id" prop="id" align="right" width="100"
+                                 sortable="custom" :sort-orders="['descending', 'ascending']"/>
+                <el-table-column label="样例1名称" key="demo1Name" prop="demo1Name" align="center" width="180"/>
+                <el-table-column label="名称" key="name" prop="name" align="center" width="180"/>
+                <el-table-column label="别名" key="aliasName" prop="aliasName" align="center" width="180"/>
+                <el-table-column label="编码" key="code" prop="code" align="center" width="180"/>
+                <el-table-column label="是否可见" key="isVisible" prop="isVisible" align="center" width="180">
                   <template #default="scope">
                     <el-tag type="success" v-if="scope.row.isVisible">是</el-tag>
                     <el-tag type="info" v-else>是</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="显示顺序" key="sort" prop="sort" sortable="custom"
-                                 :sort-orders="['descending', 'ascending']"/>
-                <el-table-column label="状态" align="center" key="status" width="160">
+                <el-table-column label="显示顺序" key="sort" prop="sort" align="center" width="160"
+                                 sortable="custom" :sort-orders="['descending', 'ascending']"/>
+                <el-table-column label="状态" key="status" prop="status" align="center" width="160">
                   <template #default="scope">
                     <el-switch
                         v-model="scope.row.status"
@@ -114,24 +114,24 @@
                     ></el-switch>
                   </template>
                 </el-table-column>
-                <el-table-column label="备注" align="center" key="remark" prop="remark"/>
-                <el-table-column label="创建时间" align="center" key="createdAt" prop="createdAt" sortable="custom"
-                                 :sort-orders="['descending', 'ascending']">
+                <el-table-column label="备注" key="remark" prop="remark" align="center" width="180"/>
+                <el-table-column label="创建时间" key="createdAt" prop="createdAt" align="center" width="160"
+                                 sortable="custom" :sort-orders="['descending', 'ascending']">
                   <template #default="scope">
                     <span>{{
                         scope.row.createdAt && dayjs(scope.row.createdAt).format('YYYY-MM-DD HH:mm:ss')
                       }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="更新时间" align="center" key="updatedAt" prop="updatedAt" sortable="custom"
-                                 :sort-orders="['descending', 'ascending']">
+                <el-table-column label="更新时间" key="updatedAt" prop="updatedAt" align="center" width="160"
+                                 sortable="custom" :sort-orders="['descending', 'ascending']">
                   <template #default="scope">
                     <span>{{
                         scope.row.updatedAt && dayjs(scope.row.updatedAt).format('YYYY-MM-DD HH:mm:ss')
                       }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" align="center" width="240" fixed="right">
+                <el-table-column label="操作" fixed="right" align="center" width="240" >
                   <template #default="scope">
                     <el-button link type="primary" icon="Edit" @click="onUpdate(scope.row)"
                     >编辑
@@ -315,7 +315,9 @@ const {sys_normal_disable} = useDict('sys_normal_disable')
 // --- 样例1相关 ---
 const demo1List = ref([])
 
-/* 加载样例1列表 */
+/**
+ * 加载样例1列表。
+ */
 async function loadDemo1List() {
   try {
     const response = await getDemo1All()
@@ -333,7 +335,9 @@ async function loadDemo1List() {
   }
 }
 
-/* 加载列表 */
+/**
+ * 加载列表。
+ */
 async function loadList() {
   tableLoading.value = true
   try {
@@ -361,19 +365,25 @@ async function loadList() {
   }
 }
 
-/* 搜索 */
+/**
+ * 搜索。
+ */
 function onSearch() {
   searchParams.value.pageNumber = 1
   loadList()
 }
 
-/* 重置搜索 */
+/**
+ * 重置搜索。
+ */
 function onResetSearch() {
   searchRef.value?.resetFields()
   onSearch()
 }
 
-/* 删除 */
+/**
+ * 删除。
+ */
 async function onDelete(row) {
   const delIds = row.id ? [row.id] : selectedIds.value
   try {
@@ -410,7 +420,9 @@ async function onDelete(row) {
   }
 }
 
-/* 修改状态  */
+/**
+ * 修改状态。
+ */
 async function onChangeStatus(row) {
   const originalStatus = row.status === '0' ? '1' : '0'
   const text = row.status === '0' ? '启用' : '停用'
@@ -444,20 +456,26 @@ async function onChangeStatus(row) {
   }
 }
 
-/* 多选框选中数据  */
+/**
+ * 多选框选中数据。
+ */
 function onSelectionChange(selection) {
   selectedIds.value = selection.map(item => item.id)
   hasNoSelection.value = !selection.length
 }
 
-/* 排序 */
+/**
+ * 排序。
+ */
 function onSortChange({column, prop, order}) {
   searchParams.value.orderByField = prop
   searchParams.value.orderByType = order === 'ascending' ? 'ASC' : 'DESC'
   loadList()
 }
 
-/* 重置表单  */
+/**
+ * 重置表单。
+ */
 function reset() {
   formData.value = {
     id: null,
@@ -473,20 +491,26 @@ function reset() {
   formRef.value?.resetFields()
 }
 
-/* 取消表单 */
+/**
+ * 取消表单。
+ */
 function onCancel() {
   isDialogOpen.value = false
   reset()
 }
 
-/* 新增 */
+/**
+ * 新增。
+ */
 function onAdd() {
   reset()
   isDialogOpen.value = true
   dialogTitle.value = '添加'
 }
 
-/* 修改 */
+/**
+ * 修改。
+ */
 async function onUpdate(row) {
   reset()
   try {
@@ -507,7 +531,9 @@ async function onUpdate(row) {
   }
 }
 
-/* 提交 */
+/**
+ * 提交。
+ */
 function onSubmitForm() {
   formRef.value?.validate(async valid => {
     if (valid) {
@@ -535,7 +561,9 @@ function onSubmitForm() {
   })
 }
 
-/* 设置表格最大高度 */
+/**
+ * 设置表格最大高度。
+ */
 function updateTableMaxHeight() {
   tableMaxHeight.value = tableRef.value.clientHeight
 }
